@@ -1,15 +1,19 @@
 import { Route, HashRouter as Router, Routes } from "react-router-dom";
 import App from "./App";
-import io from "socket.io-client";
+import { ContextProvider } from "./Context/contextProvider";
+import { RoomsPage } from "./Pages/RoomsPage";
+import { ChatPage } from "./Pages/ChatPage";
 export const Root = () => {
-  const WS_URL = "ws://localhost:5000";
-  const socket = io(WS_URL);
-
   return (
     <Router>
-      <Routes>
-        <Route path="/" element={<App />} />
-      </Routes>
+      <ContextProvider>
+        <Routes>
+          <Route path="/" element={<App />}>
+            <Route path="rooms" element={<RoomsPage />} />
+            <Route path="/rooms/:id" element={<ChatPage />} />
+          </Route>
+        </Routes>
+      </ContextProvider>
     </Router>
   );
 };

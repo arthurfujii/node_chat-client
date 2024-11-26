@@ -6,6 +6,6 @@ export type States = {
   messages: Message[];
   users: User[];
   rooms: Room[];
-  currentUser: User;
-  currentRoom: Room;
+  currentUser: User | null;
+  currentRoom: Room | null;
 }

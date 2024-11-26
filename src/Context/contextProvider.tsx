@@ -9,23 +9,16 @@ const initialStates = {
   messages: [],
   users: [],
   rooms: [],
-  currentUser: {
-    id: "",
-    name: "",
-    rommId: 0,
-  },
-  currentRoom: {
-    id: 0,
-    name: "",
-  },
+  currentUser: null,
+  currentRoom: null,
 };
 
 type Action =
   | { type: "setMessages"; payload: Message[] }
   | { type: "setUsers"; payload: User[] }
   | { type: "setRooms"; payload: Room[] }
-  | { type: "setCurrentUser"; payload: User }
-  | { type: "setCurrentRoom"; payload: Room };
+  | { type: "setCurrentUser"; payload: User | null }
+  | { type: "setCurrentRoom"; payload: Room | null };
 
 type DispatchContextType = {
   (action: Action): void;
