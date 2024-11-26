@@ -1,20 +1,20 @@
 import { Outlet } from "react-router-dom";
 import "./App.css";
-import { UserComponent } from "./Components/UserComponent";
+import { UserComponent } from "./Components/User.component";
 
 function App() {
   return (
     <>
-      <section className="section">
+      <section className="section main">
         <div className="container is-max-tablet">
-          <div className="block">
+          <div className="block header">
             <p className="title">Chat App</p>
             <p className="subtitle">Realtime chat w/ node.js backend.</p>
             <div className="block">
               <UserComponent />
             </div>
           </div>
-          <div className="block">
+          <div className="block outlet">
             <Outlet />
           </div>
         </div>

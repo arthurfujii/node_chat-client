@@ -1,6 +1,7 @@
+import { User } from "./User";
+
 export type Message = {
   text: string;
-  sender: string;
-  roomId: number;
+  user: User;
   time: string;
 };

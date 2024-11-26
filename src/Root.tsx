@@ -1,8 +1,8 @@
 import { Route, HashRouter as Router, Routes } from "react-router-dom";
 import App from "./App";
 import { ContextProvider } from "./Context/contextProvider";
-import { RoomsPage } from "./Pages/RoomsPage";
-import { ChatPage } from "./Pages/ChatPage";
+import { RoomsPage } from "./Pages/Rooms.page";
+import { ChatPage } from "./Pages/Chat.page";
 export const Root = () => {
   return (
     <Router>
