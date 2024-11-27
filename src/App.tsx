@@ -10,9 +10,9 @@ function App() {
           <div className="block header">
             <p className="title">Chat App</p>
             <p className="subtitle">Realtime chat w/ node.js backend.</p>
-            <div className="block">
-              <UserComponent />
-            </div>
+          </div>
+          <div className="block">
+            <UserComponent />
           </div>
           <div className="block outlet">
             <Outlet />

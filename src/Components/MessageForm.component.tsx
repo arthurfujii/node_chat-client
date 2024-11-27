@@ -13,8 +13,9 @@ export const MessageForm = () => {
         user: currentUser,
       };
 
-      await socket.emit("message", data);
+      await socket.emit("sendMessage", data);
       msgRef.current.value = "";
+      msgRef.current.focus();
     }
   };
 

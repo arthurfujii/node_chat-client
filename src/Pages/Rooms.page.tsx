@@ -4,10 +4,11 @@ import socket from "../Utils/socket";
 import { DispatchContext, StatesContext } from "../Context/contextProvider";
 import { Room } from "../Types/Room";
 import { useNavigate } from "react-router-dom";
+import { User } from "../Types/User";
 
 export const RoomsPage = () => {
   const roomRef: React.Ref<HTMLInputElement> = useRef(null);
-  const { rooms, currentUser } = useContext(StatesContext);
+  const { rooms, currentUser, users } = useContext(StatesContext);
   const dispatch = useContext(DispatchContext);
   const navigate = useNavigate();
 
@@ -25,7 +26,7 @@ export const RoomsPage = () => {
       room,
       user: currentUser,
     };
-
+    console.log(currentUser);
     socket.emit("joinRoom", data);
     dispatch({ type: "setCurrentRoom", payload: room });
     navigate(`${room.id}`);
@@ -43,6 +44,21 @@ export const RoomsPage = () => {
     socket.on("rooms", (data: Room[]) => {
       dispatch({ type: "setRooms", payload: data });
     });
+
+    return () => {
+      socket.off("rooms");
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    socket.on("users", (data: User[]) => {
+      dispatch({ type: "setUsers", payload: data });
+    });
+
+    return () => {
+      socket.off("users");
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -74,6 +90,10 @@ export const RoomsPage = () => {
       <div className="container">
         <div className="list">
           {rooms.map((room) => {
+            const usersList = users
+              .filter((usr) => usr.currentRoom?.id === room?.id)
+              .map((item) => item.username);
+
             return (
               <div key={room.id} className="list-item">
                 <div className="list-item-content">
@@ -84,7 +104,9 @@ export const RoomsPage = () => {
                     </span>
                   </div>
                   <div className="list-item-description">
-                    List item description
+                    {usersList.length > 0
+                      ? `Users in room: ${usersList.join(", ")}`
+                      : "Empty room"}
                   </div>
                 </div>
 

@@ -1,5 +1,7 @@
+import { Room } from "./Room";
+
 export type User = {
   id: string;
   username: string;
-  rommId: number;
+  currentRoom: Room;
 };

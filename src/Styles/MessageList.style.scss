@@ -1,4 +1,15 @@
 .list .list-item {
   padding-block: 0.5rem;
-  margin-bottom: 0.5rem
+  margin-bottom: 0.5rem;
+  margin-inline: 20px;
+}
+
+.vertically-scrollable {
+  min-height: auto;
+  max-height: 100%;
+  overflow-y: auto;
+}
+
+.msg-list {
+  padding-inline: 0;
 }

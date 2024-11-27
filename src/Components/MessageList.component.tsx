@@ -1,36 +1,43 @@
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import "../Styles/MessageList.style.scss";
-import { DispatchContext, StatesContext } from "../Context/contextProvider";
+import { StatesContext } from "../Context/contextProvider";
 import socket from "../Utils/socket";
 import { Message } from "../Types/Message";
 import axios from "axios";
 import cn from "classnames";
 
 export const MessageList = () => {
-  const { messages, currentUser } = useContext(StatesContext);
-  const dispatch = useContext(DispatchContext);
+  const { currentUser } = useContext(StatesContext);
+  const [msgs, setMsgs] = useState<Message[]>([]);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    axios.get("http://localhost:5000/messages").then((response) => {
-      dispatch({ type: "setMessages", payload: response.data });
-      console.log(response.data);
-    });
+    axios
+      .get(`http://localhost:5000/messages/${currentUser?.currentRoom?.id}`)
+      .then((response) => {
+        setMsgs(response.data);
+      })
+      .catch((error) => {
+        setError(error.message);
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     socket.on("message", (data: Message) => {
-      const newMessages = [...messages, data];
-      console.log(messages);
-      dispatch({ type: "setMessages", payload: newMessages });
+      setMsgs((prevMsgs) => [...prevMsgs, data]);
     });
-    console.log(messages);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
+    return () => {
+      socket.off("message");
+    };
   }, []);
 
   return (
     <>
-      <div className="list">
-        {messages.map((msg, i) => (
+      {error && <div className="notification is-danger">{error}</div>}
+      <div className="list vertically-scrollable">
+        {msgs.map((msg, i) => (
           <div
             className={cn("list-item box", {
               "has-text-right has-background-success-light":
@@ -40,7 +47,21 @@ export const MessageList = () => {
           >
             <div className="list-item-content">
               <div className="list-item-title">{msg.user.username}</div>
-              <div className="list-item-description">{msg.text}</div>
+              {currentUser?.id === msg.user.id ? (
+                <div className="list-item-description">
+                  <span className="is-pulled-right">{msg.text}</span>
+                  <span className="is-pulled-left has-text-grey-light is-size-7 ">
+                    ({msg.time})
+                  </span>
+                </div>
+              ) : (
+                <div className="list-item-description">
+                  <span className="is-pulled-left">{msg.text}</span>
+                  <span className="is-pulled-right has-text-grey-light is-size-7 ">
+                    {msg.time}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
         ))}
