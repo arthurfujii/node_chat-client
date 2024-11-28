@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import "../Styles/MessageList.style.scss";
 import { StatesContext } from "../Context/contextProvider";
 import socket from "../Utils/socket";
@@ -10,6 +10,15 @@ export const MessageList = () => {
   const { currentUser } = useContext(StatesContext);
   const [msgs, setMsgs] = useState<Message[]>([]);
   const [error, setError] = useState("");
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [msgs]);
 
   useEffect(() => {
     axios
@@ -42,11 +51,14 @@ export const MessageList = () => {
             className={cn("list-item box", {
               "has-text-right has-background-success-light":
                 currentUser?.id === msg.user.id,
+              "has-text-grey-lighter": msg.user.id === "Admin",
             })}
             key={i}
           >
             <div className="list-item-content">
-              <div className="list-item-title">{msg.user.username}</div>
+              {msg.user.username !== "Admin" && (
+                <div className="list-item-title">{msg.user.username}</div>
+              )}
               {currentUser?.id === msg.user.id ? (
                 <div className="list-item-description">
                   <span className="is-pulled-right">{msg.text}</span>
@@ -62,6 +74,7 @@ export const MessageList = () => {
                   </span>
                 </div>
               )}
+              <div ref={messagesEndRef} />
             </div>
           </div>
         ))}

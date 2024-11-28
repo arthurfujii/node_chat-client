@@ -16,7 +16,7 @@ export const UserComponent = () => {
     e.preventDefault();
 
     if (userRef.current) {
-      await socket.emit("user", userRef.current.value.trim());
+      await socket.emit("createUser", userRef.current.value.trim());
       navigate("rooms");
     }
   };
