@@ -1,7 +1,5 @@
-import { Room } from "./Room";
-
 export type User = {
-  id: string;
+  id: number;
   username: string;
-  currentRoom: Room;
+  currentRoomId: number;
 };

@@ -8,4 +8,4 @@ export type States = {
   rooms: Room[];
   currentUser: User | null;
   currentRoom: Room | null;
-}
+};

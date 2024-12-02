@@ -22,7 +22,7 @@ export const MessageList = () => {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:5000/messages/${currentUser?.currentRoom?.id}`)
+      .get(`http://localhost:5000/messages/${currentUser?.currentRoomId}`)
       .then((response) => {
         setMsgs(response.data);
       })
@@ -51,7 +51,7 @@ export const MessageList = () => {
             className={cn("list-item box", {
               "has-text-right has-background-success-light":
                 currentUser?.id === msg.user.id,
-              "has-text-grey-lighter": msg.user.id === "Admin",
+              "has-text-grey-lighter": msg.user.id === 0,
             })}
             key={i}
           >

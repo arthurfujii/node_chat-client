@@ -2,7 +2,6 @@ import { useContext } from "react";
 import socket from "../Utils/socket";
 import { MessageForm } from "../Components/MessageForm.component";
 import { MessageList } from "../Components/MessageList.component";
-import "../Styles/Chat.style.scss";
 import { StatesContext } from "../Context/contextProvider";
 import { useNavigate } from "react-router-dom";
 export const ChatPage = () => {

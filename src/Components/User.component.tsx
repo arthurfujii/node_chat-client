@@ -52,7 +52,6 @@ export const UserComponent = () => {
   return (
     <>
       {currentUser ? (
-        // <div className="notification is-success">
         <div className="level">
           <div className="level-left">
             <div className="level-item">
@@ -72,7 +71,6 @@ export const UserComponent = () => {
           </div>
         </div>
       ) : (
-        // </div>
         <div className="container">
           <form className="field has-addons" onSubmit={onSubmitUser}>
             <div className="control has-icons-left">

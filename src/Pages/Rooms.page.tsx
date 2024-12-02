@@ -1,35 +1,71 @@
-import { useContext, useEffect, useRef } from "react";
+import { Fragment, useContext, useEffect, useRef, useState } from "react";
 import axios from "axios";
 import socket from "../Utils/socket";
 import { DispatchContext, StatesContext } from "../Context/contextProvider";
 import { Room } from "../Types/Room";
 import { useNavigate } from "react-router-dom";
 import { User } from "../Types/User";
+import { RoomComponent } from "../Components/Room.component";
+import { RoomEditForm } from "../Components/RoomEditForm.component";
 
+type editState = {
+  roomId: null | number;
+  status: boolean;
+};
 export const RoomsPage = () => {
   const roomRef: React.Ref<HTMLInputElement> = useRef(null);
-  const { rooms, currentUser, users } = useContext(StatesContext);
+  const editRoomRef: React.Ref<HTMLInputElement> = useRef(null);
+  const { rooms, users, currentUser } = useContext(StatesContext);
   const dispatch = useContext(DispatchContext);
   const navigate = useNavigate();
+  const [isEditing, setIsEditing] = useState<editState>({
+    roomId: null,
+    status: false,
+  });
+  const [error, setError] = useState<string>("");
 
   const onRoomSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (roomRef.current) {
-      socket.emit("room", roomRef.current.value);
+      socket.emit("createRoom", roomRef.current.value);
       roomRef.current.value = "";
     }
   };
 
-  const onRoomJoin = (room: Room) => {
-    const data = {
-      room,
-      user: currentUser,
-    };
-    console.log(currentUser);
-    socket.emit("joinRoom", data);
-    dispatch({ type: "setCurrentRoom", payload: room });
-    navigate(`${room.id}`);
+  const onRoomJoin = (roomId: number) => {
+    socket.emit("joinRoom", currentUser?.id, roomId);
+
+    navigate(`${roomId}`);
+  };
+
+  const onToggleEdit = (roomId: number) => {
+    setIsEditing({ roomId, status: true });
+  };
+
+  const onDelete = (roomId: number) => {
+    socket.emit("deleteRoom", roomId);
+    setIsEditing({ roomId, status: false });
+  };
+
+  const onSubmitEditing = (
+    e: React.FormEvent<HTMLFormElement>,
+    roomId: number,
+  ) => {
+    e.preventDefault();
+
+    if (editRoomRef.current) {
+      const data = {
+        id: roomId,
+        name: editRoomRef.current.value,
+      };
+      socket.emit("editRoom", data);
+      setIsEditing({ roomId, status: false });
+    }
+  };
+
+  const onCancel = (roomId: number) => {
+    setIsEditing({ roomId, status: false });
   };
 
   useEffect(() => {
@@ -41,7 +77,19 @@ export const RoomsPage = () => {
   }, []);
 
   useEffect(() => {
+    socket.on("currentRoom", (data: Room) => {
+      dispatch({ type: "setCurrentRoom", payload: data });
+    });
+
+    return () => {
+      socket.off("currentRoom");
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
     socket.on("rooms", (data: Room[]) => {
+      console.log(data);
       dispatch({ type: "setRooms", payload: data });
     });
 
@@ -60,6 +108,17 @@ export const RoomsPage = () => {
       socket.off("users");
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    socket.on("error", (data: string) => {
+      setError(data);
+      setTimeout(() => setError(""), 3000);
+    });
+
+    return () => {
+      socket.off("error");
+    };
   }, []);
 
   return (
@@ -88,41 +147,32 @@ export const RoomsPage = () => {
         </div>
       </div>
       <div className="container">
+        {error && <div className="notification is-danger">{error}</div>}
         <div className="list">
           {rooms.map((room) => {
             const usersList = users
-              .filter((usr) => usr.currentRoom?.id === room?.id)
+              .filter((usr) => usr.currentRoomId === room.id)
               .map((item) => item.username);
 
             return (
-              <div key={room.id} className="list-item">
-                <div className="list-item-content">
-                  <div className="list-item-title">
-                    Room:{" "}
-                    <span className="is-size-5 has-text-primary">
-                      {room.name}
-                    </span>
-                  </div>
-                  <div className="list-item-description">
-                    {usersList.length > 0
-                      ? `Users in room: ${usersList.join(", ")}`
-                      : "Empty room"}
-                  </div>
-                </div>
-
-                <div className="list-item-controls">
-                  <div className="buttons is-right">
-                    <button className="button" onClick={() => onRoomJoin(room)}>
-                      <span className="icon is-small">
-                        <i className="fas fa-right-to-bracket"></i>
-                      </span>
-                      <span>Join</span>
-                    </button>
-
-                    <button className="delete" />
-                  </div>
-                </div>
-              </div>
+              <Fragment key={room.id}>
+                {isEditing.roomId === room.id && isEditing.status === true ? (
+                  <RoomEditForm
+                    onSubmitEditing={(e) => onSubmitEditing(e, room.id)}
+                    editRoomRef={editRoomRef}
+                    onCancel={() => onCancel(room.id)}
+                    room={room}
+                  />
+                ) : (
+                  <RoomComponent
+                    usersList={usersList}
+                    room={room}
+                    onRoomJoin={onRoomJoin}
+                    onToggleEdit={onToggleEdit}
+                    onDelete={onDelete}
+                  />
+                )}
+              </Fragment>
             );
           })}
         </div>
